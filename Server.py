@@ -20,14 +20,12 @@ while True:
 	client_socket,addr = server_socket.accept()
 	print('GOT CONNECTION FROM:',addr)
 	if client_socket:
-
 		while(True):
 			frame = audio.get()
 			
 			a = pickle.dumps(frame)
 			message = struct.pack("Q",len(a))+a
 			client_socket.sendall(message)
-			
 	else:
 		break
 
