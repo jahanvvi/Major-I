@@ -1,32 +1,16 @@
-import socket, cv2, pickle,struct,time
-import pyshine as ps
+from vidstream import AudioSender
+from vidstream import AudioReceiver
+import time
+import threading
 
-mode =  'send'
-name = 'SERVER TRANSMITTING AUDIO'
-audio,context= ps.audioCapture(mode=mode)
-#ps.showPlot(context,name)
+Sender=AudioSender('192.168.36.178',6669)
+Sender_thread= threading.Thread(target=Sender.start_stream)
 
-# Socket Create
-server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-host_ip = '192.168.0.152'
-port = 4982
-backlog = 5
-socket_address = (host_ip,port)
-print('STARTING SERVER AT',socket_address,'...')
-server_socket.bind(socket_address)
-server_socket.listen(backlog)
+receiver=AudioReceiver('192.168.36.22',6669)
+receiver_thread= threading.Thread(target=receiver.start_server())
 
-while True:
-	client_socket,addr = server_socket.accept()
-	print('GOT CONNECTION FROM:',addr)
-	if client_socket:
-		while(True):
-			frame = audio.get()
-			
-			a = pickle.dumps(frame)
-			message = struct.pack("Q",len(a))+a
-			client_socket.sendall(message)
-	else:
-		break
+receiver_thread.start()
 
-client_socket.close()		
+time.sleep(4)
+
+Sender_thread.start()
